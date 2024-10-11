@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.compiler)
+    alias(libs.plugins.dagger.hilt)
 }
 
 android {
@@ -37,13 +38,15 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
 dependencies {
 
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.converter)
+    api(project(":core:data"))
+
+
     implementation(libs.dagger.hilt)
     ksp(libs.dagger.hilt.compiler)
     implementation(libs.room)
