@@ -1,5 +1,6 @@
 package com.privin.network
 
+import com.privin.network.model.QuoteData
 import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -7,11 +8,8 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Inject
 
 interface Server {
-    suspend fun getTodayPrice(): Double
-}
-
-sealed class ApiError : Exception() {
-    data object NotFound : ApiError()
+    suspend fun getQuotes(): List<QuoteData>
+    suspend fun getDailyQuote(): QuoteData
 }
 
 class ServerImpl @Inject constructor(
@@ -28,8 +26,12 @@ class ServerImpl @Inject constructor(
     }
 
 
-    override suspend fun getTodayPrice(): Double {
-        return api.getLiveRates().rates["mcx_gold"] ?: throw ApiError.NotFound
+    override suspend fun getQuotes(): List<QuoteData> {
+        return api.getQuotes()
+    }
+
+    override suspend fun getDailyQuote(): QuoteData {
+        return api.getDailyQuote().first()
     }
 
 }

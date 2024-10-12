@@ -1,7 +1,7 @@
 package com.privin.data.di
 
-import com.privin.data.GoldRepository
-import com.privin.data.GoldRepositoryImpl
+import com.privin.data.QuotesRepository
+import com.privin.data.QuotesRepositoryImpl
 import com.privin.network.Server
 import dagger.Module
 import dagger.Provides
@@ -14,6 +14,6 @@ import javax.inject.Singleton
 object DataModule{
     @Provides
     @Singleton
-    fun provideGoldRepository(server: Server): GoldRepository = GoldRepositoryImpl(server)
+    fun provideQuotesRepository(server: Server): QuotesRepository = QuotesRepositoryImpl(server)
 
 }

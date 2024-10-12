@@ -5,12 +5,10 @@ import com.privin.network.Server
 import com.privin.network.ServerImpl
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import javax.inject.Singleton

@@ -1,17 +1,19 @@
 package com.privin.network
 
-import com.privin.network.model.LiveRatesResponse
+import com.privin.network.model.QuoteData
 import retrofit2.http.GET
-import retrofit2.http.Query
+import retrofit2.http.Path
 
 interface ApiService {
 
-    @GET("v1/metal/authority")
-    suspend fun getLiveRates(
-        @Query("api_key") apiKey: String = BuildConfig.API_KEY,
-        @Query("authority") authority: String = "mcx",
-        @Query("currency") currency: String = "INR",
-        @Query("unit") unit: String = "g"
-    ): LiveRatesResponse
+    @GET("api/{mode}")
+    suspend fun getQuotes(
+        @Path("mode") mode: String = "quotes",
+    ): List<QuoteData>
+
+    @GET("api/{mode}")
+    suspend fun getDailyQuote(
+        @Path("mode") mode: String = "today",
+    ): List<QuoteData>
 
 }
