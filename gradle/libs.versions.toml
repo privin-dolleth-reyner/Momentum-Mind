@@ -19,6 +19,7 @@ kotlinxSerializationJson = "1.6.3"
 kotlinxSerialization = "2.0.20"
 secretsPlugin = "2.0.1"
 moshi = "1.14.0"
+kotlinxVersion = "0.5.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -48,6 +49,7 @@ room-compiler = { group = "androidx.room", name = "room-compiler", version.ref =
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 loggingInterceptor = { group="com.squareup.okhttp3", name = "logging-interceptor", version.ref = "loggingHttpInterceptor"}
+kotlin-datetime = { group="org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxVersion"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compiler)
+    alias(libs.plugins.dagger.hilt)
 }
 
 android {
@@ -33,6 +35,13 @@ android {
 }
 
 dependencies {
+    implementation(libs.room)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+    implementation(libs.dagger.hilt)
+    ksp(libs.dagger.hilt.compiler)
+    implementation(libs.kotlin.datetime)
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

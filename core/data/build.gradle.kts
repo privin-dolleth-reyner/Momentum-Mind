@@ -36,8 +36,10 @@ android {
 dependencies {
 
     api(project(":core:network"))
+    api(project(":core:database"))
     implementation(libs.dagger.hilt)
     ksp(libs.dagger.hilt.compiler)
+    implementation(libs.kotlin.datetime)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
