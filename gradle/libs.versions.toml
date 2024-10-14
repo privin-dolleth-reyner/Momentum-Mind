@@ -20,6 +20,8 @@ kotlinxSerialization = "2.0.20"
 secretsPlugin = "2.0.1"
 moshi = "1.14.0"
 kotlinxVersion = "0.5.0"
+hiltNavigation = "1.2.0"
+materialIcons = "1.7.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,6 +45,7 @@ retrofit-kotlin-serialization = { group = "com.squareup.retrofit2", name = "conv
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 dagger-hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hiltVersion" }
 dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hiltVersion" }
+dagger-hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigation" }
 room = { group = "androidx.room", name = "room-runtime", version.ref = "roomVersion" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomVersion" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomVersion" }
@@ -50,6 +53,7 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 loggingInterceptor = { group="com.squareup.okhttp3", name = "logging-interceptor", version.ref = "loggingHttpInterceptor"}
 kotlin-datetime = { group="org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxVersion"}
+material-icons = { group="androidx.compose.material", name = "material-icons-core", version.ref = "materialIcons"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
