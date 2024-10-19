@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.privin.database.model.DailyQuoteEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -18,5 +19,7 @@ interface DailyQuoteDao {
     @Query("SELECT EXISTS(SELECT 1 FROM daily_quotes WHERE date = :date)")
     fun isDailyQuoteAvailable(date: String): Boolean
 
+    @Update
+    fun updateDailyQuote(quote: DailyQuoteEntity)
 
 }

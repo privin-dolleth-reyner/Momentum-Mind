@@ -9,5 +9,5 @@ data class DailyQuoteEntity(
     @PrimaryKey val date: String = getToday(),
     val quote: String,
     val author: String,
-    val htmlString: String,
+    val htmlString: String? = null,
 )

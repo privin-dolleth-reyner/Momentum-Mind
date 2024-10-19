@@ -8,22 +8,17 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
@@ -40,7 +35,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -50,20 +44,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.privin.data.models.Quote
 import com.privin.gpt.ui.theme.GPTTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val viewModel by viewModels<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,54 +71,87 @@ class MainActivity : ComponentActivity() {
             QuoteApp()
         }
     }
-
-    override fun onStart() {
-        super.onStart()
-        viewModel.getTodayPrice()
-    }
-
 }
 
 @Composable
-fun QuoteApp(){
+fun QuoteApp() {
     GPTTheme {
-        var selectedItemIndex by remember { mutableIntStateOf(0) }
+        val navController = rememberNavController()
         Scaffold(
-            topBar = { TopAppBar(title = { Text(text = "GPT Quotes") }, colors = TopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                actionIconContentColor = MaterialTheme.colorScheme.secondary
-            )) },
-            bottomBar = { BottomAppBar {
-                NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer, contentColor = MaterialTheme.colorScheme.onPrimary) {
-                   NavigationBarItem(icon = { Icon(imageVector = Icons.Filled.Home, contentDescription = "Home") }, label = { Text(text = "Home") }, selected = selectedItemIndex == 0, onClick = { selectedItemIndex = 0}, colors = NavigationBarItemDefaults.colors().copy(selectedIndicatorColor = MaterialTheme.colorScheme.primaryContainer, selectedIconColor = MaterialTheme.colorScheme.primary))
-                   NavigationBarItem(icon = { Icon(imageVector = Icons.AutoMirrored.Filled.List, contentDescription = "Quotes") }, label = { Text(text = "Quotes") }, selected = selectedItemIndex == 1, onClick = { selectedItemIndex = 1}, colors = NavigationBarItemDefaults.colors().copy(selectedIndicatorColor = MaterialTheme.colorScheme.primaryContainer, selectedIconColor = MaterialTheme.colorScheme.primary))
-                   NavigationBarItem(icon = { Icon(imageVector = Icons.Filled.Settings, contentDescription = "Settings")}, label = { Text(text = "Settings") }, selected = selectedItemIndex == 2, onClick = { selectedItemIndex = 2}, colors = NavigationBarItemDefaults.colors().copy(selectedIndicatorColor = MaterialTheme.colorScheme.primaryContainer, selectedIconColor = MaterialTheme.colorScheme.primary))
+            topBar = {
+                TopAppBar(
+                    title = { Text(text = "GPT Quotes") }, colors = TopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                        actionIconContentColor = MaterialTheme.colorScheme.secondary
+                    )
+                )
+            },
+            bottomBar = {
+                BottomAppBar {
+                    NavigationBar(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )  {
+                        val navBackStackEntry by navController.currentBackStackEntryAsState()
+                        val currentRoute = navBackStackEntry?.destination?.route
+
+                        val screens = listOf(Screen.Home, Screen.Favorites)
+
+                        screens.forEach { screen ->
+                            NavigationBarItem(
+                                icon = { Icon(screen.icon, contentDescription = screen.label) },
+                                label = { Text(screen.label) },
+                                selected = currentRoute == screen.route,
+                                colors = NavigationBarItemDefaults.colors().copy(
+                                    selectedIndicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                                    selectedIconColor = MaterialTheme.colorScheme.primary
+                                ),
+                                onClick = {
+                                    navController.navigate(screen.route) {
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
-            } },
+            },
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-            HomeScreen(innerPadding)
+            NavigationGraph(navController, Modifier.padding(innerPadding))
         }
     }
 }
 
 @Composable
-fun HomeScreen(innerPadding: PaddingValues, viewModel: MainViewModel = hiltViewModel(), modifier: Modifier = Modifier){
-    val state = viewModel.state.collectAsState()
-    Column(modifier = modifier.fillMaxWidth().padding(innerPadding).background(color = MaterialTheme.colorScheme.background),
+fun HomeScreen(
+    viewModel: MainViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(color = MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        when (val value = state.value) {
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        when (val value = state) {
             is MainState.Loaded -> {
-                QuoteScreen(value.quote)
+                QuoteScreen(value.quote){ isFav ->
+                    viewModel.addQuoteToFavorites(value.quote.copy(isFavorite = isFav))
+                }
             }
+
             is MainState.Loading -> {
-                Loading(
-                    modifier = Modifier.padding(innerPadding)
-                )
+                Loading()
             }
         }
     }
@@ -128,7 +160,11 @@ fun HomeScreen(innerPadding: PaddingValues, viewModel: MainViewModel = hiltViewM
 
 @Composable
 fun Loading(modifier: Modifier = Modifier) {
-    Column (modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally){
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Text(
             text = "Loading...",
             modifier = modifier
@@ -148,8 +184,11 @@ fun QuoteScreen(quote: Quote, onFavoriteClick: (isFavorite: Boolean) -> Unit = {
         color = MaterialTheme.colorScheme.tertiary,
         fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
         fontWeight = MaterialTheme.typography.bodyLarge.fontWeight,
-        lineHeight = TextUnit(80f, TextUnitType.Sp),
-        modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(16.dp) // Occupies most of the space
+        lineHeight = TextUnit(10f, TextUnitType.Sp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(16.dp)
     )
     Card(
         modifier = Modifier
@@ -160,30 +199,49 @@ fun QuoteScreen(quote: Quote, onFavoriteClick: (isFavorite: Boolean) -> Unit = {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(16.dp),
+                .background(MaterialTheme.colorScheme.surface),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
             Text(
                 text = quote.quote,
-                textAlign = TextAlign.Center,
-                fontSize = 36.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
-                fontWeight = MaterialTheme.typography.bodyLarge.fontWeight,
-                lineHeight = TextUnit(80f, TextUnitType.Sp),
-                modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(16.dp).weight(2f) // Occupies most of the space
+                style = TextStyle(
+                    lineHeight = 2.em,
+                    lineHeightStyle = LineHeightStyle(
+                        alignment = LineHeightStyle.Alignment.Center,
+                        trim = LineHeightStyle.Trim.None
+                    ),
+                    fontSize = 32.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
+                    fontWeight = MaterialTheme.typography.bodyLarge.fontWeight,
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(8.dp)
+                    .weight(2f)
             )
             Text(
                 text = "- ${quote.author}",
-                textAlign = TextAlign.End,
-                fontSize = 36.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
-                lineHeight = TextUnit(80f, TextUnitType.Sp),
-                modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(horizontal = 16.dp).weight(1f) // Occupies most of the space
+                style = TextStyle(
+                    textAlign = TextAlign.End,
+                    lineHeight = 2.em,
+                    lineHeightStyle = LineHeightStyle(
+                        alignment = LineHeightStyle.Alignment.Center,
+                        trim = LineHeightStyle.Trim.None
+                    ),
+                    fontSize = 32.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
+                    fontWeight = MaterialTheme.typography.bodyLarge.fontWeight,
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(8.dp)
+                    .weight(1f)
             )
 
             Row(
@@ -229,6 +287,6 @@ fun QuoteScreen(quote: Quote, onFavoriteClick: (isFavorite: Boolean) -> Unit = {
 @Composable
 fun QuoteScreenPreview() {
     GPTTheme {
-        QuoteScreen(Quote(quote = "Where there is will there is a way", author = ""))
+        QuoteScreen(Quote(quote = "Where there is will there is a way", author = "George Herbert"))
     }
 }

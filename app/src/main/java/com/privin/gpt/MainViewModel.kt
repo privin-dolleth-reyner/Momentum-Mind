@@ -18,11 +18,21 @@ class MainViewModel @Inject constructor(
     private val _state = MutableStateFlow<MainState>(MainState.Loading)
     val state = _state.asStateFlow()
 
-    fun getTodayPrice() {
+    init {
+        getTodayPrice()
+    }
+
+    private fun getTodayPrice() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getDailyQuote().collect {
                 _state.value = MainState.Loaded(it)
             }
+        }
+    }
+
+    fun addQuoteToFavorites(quote: Quote) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.addQuoteToFavorites(quote)
         }
     }
 }

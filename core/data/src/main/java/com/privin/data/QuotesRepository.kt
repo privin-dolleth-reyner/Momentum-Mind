@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.map
 interface QuotesRepository {
 
     suspend fun getDailyQuote(): Flow<Quote>
+    suspend fun addQuoteToFavorites(quote: Quote)
 }
 
 class QuotesRepositoryImpl(
@@ -28,6 +29,10 @@ class QuotesRepositoryImpl(
         }
         val quote = dailyQuoteDao.getDailyQuoteByDate(date)
         return quote.map { it.mapToQuote() }
+    }
+
+    override suspend fun addQuoteToFavorites(quote: Quote) {
+        dailyQuoteDao.updateDailyQuote(quote.mapToDailyQuoteEntity())
     }
 
 }
