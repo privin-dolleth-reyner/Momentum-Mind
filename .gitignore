@@ -15,3 +15,6 @@
 .cxx
 local.properties
 /secrets.properties
+/signing.properties
+/app/gpt.jks
+

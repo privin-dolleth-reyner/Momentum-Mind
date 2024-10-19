@@ -9,6 +9,6 @@ data class QuoteEntity(
     val quote: String,
     val author: String,
     val charCount: String? = null,
-    val htmlString: String,
+    val htmlString: String? = null,
     val isFavorite: Boolean = false
 )

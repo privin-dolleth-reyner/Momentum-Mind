@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.privin.data.QuotesRepository
 import com.privin.data.models.Quote
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,7 +24,7 @@ class MainViewModel @Inject constructor(
     }
 
     private fun getTodayPrice() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO + CoroutineExceptionHandler{_, throwable -> throwable.printStackTrace() }) {
             repository.getDailyQuote().collect {
                 _state.value = MainState.Loaded(it)
             }
