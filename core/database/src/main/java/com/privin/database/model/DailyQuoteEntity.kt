@@ -10,4 +10,5 @@ data class DailyQuoteEntity(
     val quote: String,
     val author: String,
     val htmlString: String? = null,
+    val isFavourite: Boolean = false,
 )

@@ -13,7 +13,8 @@ import kotlinx.coroutines.flow.map
 interface QuotesRepository {
 
     suspend fun getDailyQuote(): Flow<Quote>
-    suspend fun addQuoteToFavorites(quote: Quote)
+    suspend fun updateFavorites(quote: Quote)
+    suspend fun getFavourites(): Flow<List<Quote>>
 }
 
 class QuotesRepositoryImpl(
@@ -31,8 +32,12 @@ class QuotesRepositoryImpl(
         return quote.map { it.mapToQuote() }
     }
 
-    override suspend fun addQuoteToFavorites(quote: Quote) {
+    override suspend fun updateFavorites(quote: Quote) {
         dailyQuoteDao.updateDailyQuote(quote.mapToDailyQuoteEntity())
+    }
+
+    override suspend fun getFavourites(): Flow<List<Quote>> {
+        return dailyQuoteDao.getFavourites().map { it.map {entity-> entity.mapToQuote() } }
     }
 
 }

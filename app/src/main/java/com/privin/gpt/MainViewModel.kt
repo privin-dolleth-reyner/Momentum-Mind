@@ -32,7 +32,7 @@ class MainViewModel @Inject constructor(
 
     fun addQuoteToFavorites(quote: Quote) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.addQuoteToFavorites(quote)
+            repository.updateFavorites(quote)
         }
     }
 }

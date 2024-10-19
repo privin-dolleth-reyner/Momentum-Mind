@@ -22,4 +22,7 @@ interface DailyQuoteDao {
     @Update
     fun updateDailyQuote(quote: DailyQuoteEntity)
 
+    @Query("SELECT * FROM daily_quotes WHERE isFavourite = 1")
+    fun getFavourites(): Flow<List<DailyQuoteEntity>>
+
 }

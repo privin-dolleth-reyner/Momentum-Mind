@@ -9,6 +9,7 @@ fun DailyQuoteEntity.mapToQuote(): Quote {
     return Quote(
         quote = quote,
         author = author,
+        isFavorite = isFavourite
     )
 }
 
