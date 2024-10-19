@@ -10,10 +10,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
@@ -41,16 +45,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -144,7 +151,7 @@ fun HomeScreen(
     ) {
         when (val value = state) {
             is MainState.Loaded -> {
-                QuoteScreen(value.quote){ isFav ->
+                FullscreenQuoteCard(value.quote){ isFav ->
                     viewModel.addQuoteToFavorites(value.quote.copy(isFavorite = isFav))
                 }
             }
@@ -172,9 +179,20 @@ fun Loading(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun QuoteScreen(quote: Quote, onFavoriteClick: (isFavorite: Boolean) -> Unit = {}) {
+fun FullscreenQuoteCard(
+    quote: Quote,
+    modifier: Modifier = Modifier,
+    gradientColors: List<Color> = listOf(
+        Color(0xFF1F1F1F),
+        Color(0xFF3E3E3E)
+    ),
+    onFavoriteClick: (isFavorite: Boolean) -> Unit = {}
+) {
     val context = LocalContext.current
     var isFavorite by remember { mutableStateOf(quote.isFavorite) }
+
+    var quoteTextSize by remember { mutableStateOf(48.sp) }
+    var authorTextSize by remember { mutableStateOf(24.sp) }
 
     Text(
         text = "Today's Quote",
@@ -189,103 +207,143 @@ fun QuoteScreen(quote: Quote, onFavoriteClick: (isFavorite: Boolean) -> Unit = {
             .wrapContentHeight()
             .padding(16.dp)
     )
+
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+        modifier = modifier.fillMaxSize().padding(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .background(
+                    Brush.verticalGradient(gradientColors)
+                )
+                .padding(24.dp)
         ) {
-
             Text(
-                text = quote.quote,
+                text = "❝",
                 style = TextStyle(
-                    lineHeight = 2.em,
-                    lineHeightStyle = LineHeightStyle(
-                        alignment = LineHeightStyle.Alignment.Center,
-                        trim = LineHeightStyle.Trim.None
-                    ),
-                    fontSize = 32.sp,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
-                    fontWeight = MaterialTheme.typography.bodyLarge.fontWeight,
+                    fontSize = 200.sp,
+                    color = Color.White,
+                    fontFamily = FontFamily.Serif
                 ),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(8.dp)
-                    .weight(2f)
-            )
-            Text(
-                text = "- ${quote.author}",
-                style = TextStyle(
-                    textAlign = TextAlign.End,
-                    lineHeight = 2.em,
-                    lineHeightStyle = LineHeightStyle(
-                        alignment = LineHeightStyle.Alignment.Center,
-                        trim = LineHeightStyle.Trim.None
-                    ),
-                    fontSize = 32.sp,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
-                    fontWeight = MaterialTheme.typography.bodyLarge.fontWeight,
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(8.dp)
-                    .weight(1f)
+                    .align(Alignment.TopStart)
+                    .offset(x = (-20).dp, y = (-40).dp)
+                    .alpha(0.1f)
             )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                IconButton(onClick = {
-                    val shareIntent = Intent().apply {
-                        action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_TEXT, "${quote.quote} \n - ${quote.author}")
-                        type = "text/plain"
-                    }
-                    context.startActivity(Intent.createChooser(shareIntent, "Share via"))
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.Share,
-                        contentDescription = "Share Quote",
-                        tint = MaterialTheme.colorScheme.secondary
+                AutoResizingText(
+                    text = quote.quote,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 32.dp),
+                    initialFontSize = quoteTextSize,
+                    onFontSizeChanged = { quoteTextSize = it },
+                    style = TextStyle(
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        fontFamily = FontFamily.Serif
                     )
-                }
+                )
 
-                IconButton(onClick = {
-                    isFavorite = !isFavorite
-                    onFavoriteClick(isFavorite)
-                    Toast.makeText(
-                        context,
-                        if (isFavorite) "Added to Favorites" else "Removed from Favorites",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }) {
-                    Icon(
-                        imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = "Favorite Quote",
-                        tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.secondary
-                    )
+                AutoResizingText(
+                    text = "— ${quote.author}",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    initialFontSize = authorTextSize,
+                    onFontSizeChanged = { authorTextSize = it },
+                    style = TextStyle(
+                        fontStyle = FontStyle.Italic,
+                        color = Color.White.copy(alpha = 0.8f),
+                        textAlign = TextAlign.Center,
+                        fontFamily = FontFamily.Serif
+                    ),
+                    maxLines = 2
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                ) {
+                    IconButton(onClick = {
+                        val shareIntent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, "${quote.quote} \n - ${quote.author}")
+                            type = "text/plain"
+                        }
+                        context.startActivity(Intent.createChooser(shareIntent, "Share via"))
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Share Quote",
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+
+                    IconButton(onClick = {
+                        isFavorite = !isFavorite
+                        onFavoriteClick(isFavorite)
+                        Toast.makeText(
+                            context,
+                            if (isFavorite) "Added to Favorites" else "Removed from Favorites",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }) {
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = "Favorite Quote",
+                            tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.secondary
+                        )
+                    }
                 }
             }
         }
     }
 }
 
+@Composable
+private fun AutoResizingText(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle,
+    initialFontSize: TextUnit,
+    onFontSizeChanged: (TextUnit) -> Unit,
+    maxLines: Int = 6
+) {
+    var fontSize by remember { mutableStateOf(initialFontSize) }
+
+    Text(
+        text = text,
+        modifier = modifier,
+        style = style.copy(fontSize = fontSize),
+        maxLines = maxLines,
+        onTextLayout = { textLayoutResult ->
+            if (textLayoutResult.hasVisualOverflow) {
+                fontSize *= 0.9f
+                onFontSizeChanged(fontSize)
+            }
+        }
+    )
+}
+
+
 @Preview(showBackground = true)
 @Composable
 fun QuoteScreenPreview() {
     GPTTheme {
-        QuoteScreen(Quote(quote = "Where there is will there is a way", author = "George Herbert"))
+        FullscreenQuoteCard(Quote(quote = "Where there is will there is a way", author = "George Herbert"))
     }
 }

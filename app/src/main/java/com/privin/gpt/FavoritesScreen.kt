@@ -73,6 +73,19 @@ fun FavoritesScreen(viewModel: FavouritesViewModel = hiltViewModel()){
 
 }
 
+@Composable
+fun EmptyScreen(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Add some quotes to your favorites",
+            modifier = modifier
+        )
+    }
+}
 
 @Composable
 fun MotivationalQuotesList(
@@ -82,19 +95,23 @@ fun MotivationalQuotesList(
 ) {
     var quotes by remember { mutableStateOf(initialQuotes) }
 
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        items(quotes) { quote ->
-            QuoteCard(
-                quote = quote,
-                onRemove = {
-                    quotes = quotes.filter { it.date != quote.date }
-                    onQuoteRemoved(quote)
-                }
-            )
+    if (quotes.isEmpty()){
+        EmptyScreen()
+    }else{
+        LazyColumn(
+            modifier = modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(quotes) { quote ->
+                QuoteCard(
+                    quote = quote,
+                    onRemove = {
+                        quotes = quotes.filter { it.date != quote.date }
+                        onQuoteRemoved(quote)
+                    }
+                )
+            }
         }
     }
 }
