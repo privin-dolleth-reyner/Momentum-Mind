@@ -19,3 +19,48 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class androidx.compose.** { *; }
+-keep interface androidx.compose.** { *; }
+-dontwarn androidx.compose.**
+
+# Moshi (used for JSON serialization/deserialization)
+-keep class com.squareup.moshi.** { *; }
+-dontwarn com.squareup.moshi.**
+
+-keepclasseswithmembers class * {
+    @com.squareup.moshi.Json <fields>;
+    @com.squareup.moshi.JsonClass <fields>;
+}
+
+# Keep annotations for Moshi
+-keepattributes *Annotation*
+
+# Keep all class members for Continuation and coroutines
+-keepclassmembers,allowobfuscation class ** {
+    @kotlin.coroutines.Continuation public <methods>;
+}
+
+# Keep metadata to support reflection for coroutines and suspend functions
+-keepclassmembers class kotlin.Metadata {
+    *;
+}
+
+# Keep methods generated for coroutine suspend functions
+-keepclassmembers class ** {
+    public <methods>;
+}
+
+# Prevent stripping of Coroutine classes used during runtime
+-keep class kotlinx.coroutines.** { *; }
+-dontwarn kotlinx.coroutines.**
+
+# Prevent stripping of Kotlin internal coroutine classes
+-keep class kotlin.coroutines.jvm.internal.** { *; }
+-dontwarn kotlin.coroutines.jvm.internal.**
+
+# To ensure proper support for Coroutine Intrinsics and Continuation classes
+-keep class kotlin.coroutines.intrinsics.** { *; }
+
+# Keep coroutines debug agent classes
+-keep class kotlinx.coroutines.debug.** { *; }
