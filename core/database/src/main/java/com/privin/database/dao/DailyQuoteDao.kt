@@ -16,11 +16,17 @@ interface DailyQuoteDao {
     @Query("SELECT * FROM daily_quotes WHERE date = :date")
     fun getDailyQuoteByDate(date: String): Flow<DailyQuoteEntity>
 
+    @Query("SELECT * FROM daily_quotes ORDER BY date DESC LIMIT 1")
+    fun getLastAvailable(): Flow<DailyQuoteEntity>
+
     @Query("SELECT EXISTS(SELECT 1 FROM daily_quotes WHERE date = :date)")
-    fun isDailyQuoteAvailable(date: String): Boolean
+    suspend fun isDailyQuoteAvailable(date: String): Boolean
+
+    @Query("SELECT COUNT(*) > 0 FROM daily_quotes")
+    suspend fun hasQuotes(): Boolean
 
     @Update
-    fun updateDailyQuote(quote: DailyQuoteEntity)
+    suspend fun updateDailyQuote(quote: DailyQuoteEntity)
 
     @Query("SELECT * FROM daily_quotes WHERE isFavourite = 1")
     fun getFavourites(): Flow<List<DailyQuoteEntity>>

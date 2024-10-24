@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,13 +21,16 @@ class MainViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     init {
-        getTodayPrice()
+        getDailyQuote()
     }
 
-    private fun getTodayPrice() {
+    private fun getDailyQuote() {
         viewModelScope.launch(Dispatchers.IO + CoroutineExceptionHandler{_, throwable -> throwable.printStackTrace() }) {
-            repository.getDailyQuote().collect {
-                _state.value = MainState.Loaded(it)
+            val quote = repository.getDailyQuote().firstOrNull()
+            if (quote == null) {
+                _state.value = MainState.Error("Something went wrong, please try again later")
+            } else {
+                _state.value = MainState.Loaded(quote)
             }
         }
     }
@@ -41,4 +45,5 @@ class MainViewModel @Inject constructor(
 sealed class MainState {
     data object Loading: MainState()
     data class Loaded(val quote: Quote): MainState()
+    data class Error(val message: String) : MainState()
 }

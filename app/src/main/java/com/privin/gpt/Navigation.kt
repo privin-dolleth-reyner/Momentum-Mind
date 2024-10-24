@@ -12,9 +12,13 @@ import androidx.navigation.compose.composable
 
 
 @Composable
-fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
+fun NavigationGraph(
+    navController: NavHostController,
+    modifier: Modifier,
+    showSnackbar: (String) -> Unit
+) {
     NavHost(navController = navController, startDestination = Screen.Home.route, modifier = modifier) {
-        composable(Screen.Home.route) { HomeScreen() }
+        composable(Screen.Home.route) { HomeScreen(showSnackbar = showSnackbar) }
         composable(Screen.Favorites.route) { FavoritesScreen() }
     }
 }

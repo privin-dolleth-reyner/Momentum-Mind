@@ -37,6 +37,9 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
@@ -44,6 +47,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,6 +72,7 @@ import androidx.navigation.compose.rememberNavController
 import com.privin.data.models.Quote
 import com.privin.gpt.ui.theme.GPTTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -87,7 +92,11 @@ class MainActivity : ComponentActivity() {
 fun QuoteApp() {
     GPTTheme {
         val navController = rememberNavController()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
         Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 TopAppBar(
                     title = { Text(text = "GPT Quotes") }, colors = TopAppBarColors(
@@ -135,7 +144,15 @@ fun QuoteApp() {
             },
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-            NavigationGraph(navController, Modifier.padding(innerPadding))
+            NavigationGraph(navController, Modifier.padding(innerPadding)) {
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = it,
+                        withDismissAction = true,
+                        duration = SnackbarDuration.Long
+                    )
+                }
+            }
         }
     }
 }
@@ -143,7 +160,8 @@ fun QuoteApp() {
 @Composable
 fun HomeScreen(
     viewModel: MainViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showSnackbar: (String) -> Unit = {}
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     Column(
@@ -162,6 +180,10 @@ fun HomeScreen(
 
             is MainState.Loading -> {
                 Loading()
+            }
+
+            is MainState.Error -> {
+                showSnackbar(value.message)
             }
         }
     }
