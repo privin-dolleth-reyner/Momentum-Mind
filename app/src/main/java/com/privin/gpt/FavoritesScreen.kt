@@ -35,6 +35,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.privin.data.models.Quote
 import androidx.compose.foundation.lazy.items
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 @Composable
 fun FavoritesScreen(viewModel: FavouritesViewModel = hiltViewModel()){
@@ -90,10 +92,10 @@ fun EmptyScreen(modifier: Modifier = Modifier) {
 @Composable
 fun MotivationalQuotesList(
     modifier: Modifier = Modifier,
-    initialQuotes: List<Quote> = emptyList(),
+    initialQuotes: Flow<List<Quote>> = emptyFlow(),
     onQuoteRemoved: (Quote) -> Unit = {}
 ) {
-    var quotes by remember { mutableStateOf(initialQuotes) }
+    val quotes by initialQuotes.collectAsStateWithLifecycle(listOf())
 
     if (quotes.isEmpty()){
         EmptyScreen()
@@ -107,7 +109,6 @@ fun MotivationalQuotesList(
                 QuoteCard(
                     quote = quote,
                     onRemove = {
-                        quotes = quotes.filter { it.date != quote.date }
                         onQuoteRemoved(quote)
                     }
                 )

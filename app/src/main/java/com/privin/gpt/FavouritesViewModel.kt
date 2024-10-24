@@ -6,6 +6,7 @@ import com.privin.data.QuotesRepository
 import com.privin.data.models.Quote
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,9 +22,7 @@ class FavouritesViewModel @Inject constructor(private val quotesRepository: Quot
 
     private fun loadFavourites() {
         viewModelScope.launch(Dispatchers.IO) {
-            quotesRepository.getFavourites().collect{
-                state.value = FavouritesState.Loaded(it)
-            }
+            state.value = FavouritesState.Loaded(quotesRepository.getFavourites())
         }
     }
 
@@ -37,5 +36,5 @@ class FavouritesViewModel @Inject constructor(private val quotesRepository: Quot
 
 sealed interface FavouritesState {
     data object Loading : FavouritesState
-    data class Loaded(val quotes: List<Quote>) : FavouritesState
+    data class Loaded(val quotes: Flow<List<Quote>>) : FavouritesState
 }
