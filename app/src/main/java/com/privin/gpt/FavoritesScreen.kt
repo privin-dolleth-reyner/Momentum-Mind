@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
@@ -19,9 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -34,9 +32,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.privin.data.models.Quote
-import androidx.compose.foundation.lazy.items
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 
 @Composable
 fun FavoritesScreen(viewModel: FavouritesViewModel = hiltViewModel()){
@@ -66,7 +61,7 @@ fun FavoritesScreen(viewModel: FavouritesViewModel = hiltViewModel()){
 
         when (val value = state){
             is FavouritesState.Loading -> Loading()
-            is FavouritesState.Loaded -> MotivationalQuotesList(initialQuotes = value.quotes){
+            is FavouritesState.Loaded -> MotivationalQuotesList(quotes = value.quotes){
                 viewModel.removeQuoteFromFavorites(it)
             }
         }
@@ -92,10 +87,9 @@ fun EmptyScreen(modifier: Modifier = Modifier) {
 @Composable
 fun MotivationalQuotesList(
     modifier: Modifier = Modifier,
-    initialQuotes: Flow<List<Quote>> = emptyFlow(),
+    quotes: List<Quote>,
     onQuoteRemoved: (Quote) -> Unit = {}
 ) {
-    val quotes by initialQuotes.collectAsStateWithLifecycle(listOf())
 
     if (quotes.isEmpty()){
         EmptyScreen()

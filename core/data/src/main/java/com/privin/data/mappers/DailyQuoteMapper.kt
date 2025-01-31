@@ -5,7 +5,8 @@ import com.privin.database.model.DailyQuoteEntity
 import com.privin.network.model.QuoteData
 
 
-fun DailyQuoteEntity.mapToQuote(): Quote {
+fun DailyQuoteEntity?.mapToQuote(): Quote {
+    if (this == null) return Quote()
     return Quote(
         quote = quote,
         author = author,
