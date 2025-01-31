@@ -26,6 +26,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -45,14 +46,8 @@ fun FavoritesScreen(viewModel: FavouritesViewModel = hiltViewModel()){
     ) {
         Text(
             text = "Favorites",
-            style = TextStyle(
-                textAlign = TextAlign.Center,
-                fontSize = 28.sp,
-                color = MaterialTheme.colorScheme.tertiary,
-                fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
-                fontWeight = MaterialTheme.typography.bodyLarge.fontWeight,
-                lineHeight = 1.em
-            ),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.headlineLarge,
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
@@ -133,14 +128,12 @@ private fun QuoteCard(
             ) {
                 Text(
                     text = quote.quote,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal
+                    style = MaterialTheme.typography.titleLarge
                 )
                 Text(
                     text = "- ${quote.author}",
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     fontStyle = FontStyle.Italic,
-                    color = MaterialTheme.colorScheme.secondary
                 )
             }
 
@@ -153,4 +146,10 @@ private fun QuoteCard(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun List(){
+    MotivationalQuotesList(quotes = listOf(Quote(quote = "Where there is will there is a way", author = "George Herbert")))
 }

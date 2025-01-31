@@ -32,6 +32,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -40,9 +41,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -99,35 +102,22 @@ fun QuoteApp() {
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 TopAppBar(
-                    title = { Text(text = "GPT Quotes") }, colors = TopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                        actionIconContentColor = MaterialTheme.colorScheme.secondary
-                    )
+                    title = { Text(text = "GPT Quotes", color = MaterialTheme.colorScheme.onPrimaryContainer) }
+                    , colors = TopAppBarDefaults.largeTopAppBarColors().copy(containerColor = MaterialTheme.colorScheme.primaryContainer)
                 )
             },
             bottomBar = {
-                BottomAppBar {
-                    NavigationBar(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )  {
+                BottomAppBar(containerColor = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
+                    NavigationBar(containerColor = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground)  {
                         val navBackStackEntry by navController.currentBackStackEntryAsState()
                         val currentRoute = navBackStackEntry?.destination?.route
-
                         val screens = listOf(Screen.Home, Screen.Favorites)
-
                         screens.forEach { screen ->
                             NavigationBarItem(
-                                icon = { Icon(screen.icon, contentDescription = screen.label) },
-                                label = { Text(screen.label) },
+                                icon = { Icon(screen.icon, contentDescription = screen.label, modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp)) },
+                                label = { Text(screen.label, style = MaterialTheme.typography.labelMedium) },
                                 selected = currentRoute == screen.route,
-                                colors = NavigationBarItemDefaults.colors().copy(
-                                    selectedIndicatorColor = MaterialTheme.colorScheme.primaryContainer,
-                                    selectedIconColor = MaterialTheme.colorScheme.primary
-                                ),
+                                colors = NavigationBarItemDefaults.colors().copy(selectedIconColor = MaterialTheme.colorScheme.onPrimary, unselectedIconColor = MaterialTheme.colorScheme.onSurface, selectedIndicatorColor = MaterialTheme.colorScheme.primaryContainer),
                                 onClick = {
                                     navController.navigate(screen.route) {
                                         popUpTo(navController.graph.startDestinationId) {
@@ -166,8 +156,7 @@ fun HomeScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     Column(
         modifier = modifier
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.background),
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -187,7 +176,6 @@ fun HomeScreen(
             }
         }
     }
-
 }
 
 @Composable
@@ -204,14 +192,11 @@ fun Loading(modifier: Modifier = Modifier) {
     }
 }
 
+
 @Composable
 fun FullscreenQuoteCard(
     quote: Quote,
     modifier: Modifier = Modifier,
-    gradientColors: List<Color> = listOf(
-        Color(0xFF1F1F1F),
-        Color(0xFF3E3E3E)
-    ),
     onFavoriteClick: (isFavorite: Boolean) -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -223,11 +208,7 @@ fun FullscreenQuoteCard(
     Text(
         text = "Today's Quote",
         textAlign = TextAlign.Center,
-        fontSize = 28.sp,
-        color = MaterialTheme.colorScheme.tertiary,
-        fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
-        fontWeight = MaterialTheme.typography.bodyLarge.fontWeight,
-        lineHeight = TextUnit(10f, TextUnitType.Sp),
+        style = MaterialTheme.typography.headlineLarge,
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
@@ -238,14 +219,11 @@ fun FullscreenQuoteCard(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(gradientColors)
-                )
                 .padding(24.dp)
         ) {
             Text(
@@ -317,7 +295,6 @@ fun FullscreenQuoteCard(
                         Icon(
                             imageVector = Icons.Default.Share,
                             contentDescription = "Share Quote",
-                            tint = MaterialTheme.colorScheme.secondary
                         )
                     }
 
@@ -333,7 +310,7 @@ fun FullscreenQuoteCard(
                         Icon(
                             imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Favorite Quote",
-                            tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.secondary
+                            tint = if (isFavorite) Color.Red else LocalContentColor.current
                         )
                     }
                 }
