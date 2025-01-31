@@ -20,7 +20,8 @@ interface QuotesRepository {
 
 class QuotesRepositoryImpl(
     private val server: Server,
-    private val dailyQuoteDao: DailyQuoteDao
+    private val dailyQuoteDao: DailyQuoteDao,
+    private val quoteDao: QuoteDao
 ) : QuotesRepository {
 
     override suspend fun getDailyQuote(): Flow<Quote> {
