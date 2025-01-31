@@ -5,8 +5,8 @@ import com.privin.database.util.getToday
 
 data class Quote(
     val date: String = getToday(),
-    val quote: String,
-    val author: String,
+    val quote: String = "",
+    val author: String = "",
     val isFavorite: Boolean = false
 ) {
     fun mapToDailyQuoteEntity(): DailyQuoteEntity {
@@ -16,5 +16,9 @@ data class Quote(
             author = author,
             isFavourite = isFavorite
         )
+    }
+
+    fun isEmpty(): Boolean {
+        return quote.isEmpty() && author.isEmpty()
     }
 }
