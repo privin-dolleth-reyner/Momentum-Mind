@@ -11,7 +11,7 @@ import com.privin.database.util.InstantConverter
 
 @Database(version = 1, entities = [QuoteEntity::class, DailyQuoteEntity::class])
 @TypeConverters(InstantConverter::class)
-abstract class GPTDatabase: RoomDatabase() {
+abstract class MomentumMindDatabase: RoomDatabase() {
     abstract fun quoteDao(): QuoteDao
     abstract fun dailyQuoteDao(): DailyQuoteDao
 }
