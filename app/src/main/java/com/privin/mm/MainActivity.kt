@@ -230,7 +230,7 @@ fun Loading(modifier: Modifier = Modifier) {
         CircularProgressIndicator()
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "Loading...",
+            text = stringResource(R.string.loading),
             modifier = modifier
         )
     }
