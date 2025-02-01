@@ -16,33 +16,45 @@ class FavouritesViewModel @Inject constructor(
     private val quotesRepository: QuotesRepository
 ): ViewModel() {
 
-    private val _state = MutableStateFlow<FavouritesState>(FavouritesState.Loading)
+    private val _state = MutableStateFlow(State())
     val state = _state
 
     private val dispatcherContext = Dispatchers.IO + CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
-        _state.value = FavouritesState.Loaded(emptyList())
+        _state.value = _state.value.copy(uiState = FavouritesState.Loaded(emptyList()))
     }
 
     init {
         loadFavourites()
     }
 
+    fun setSelectedQuote(quote: Quote) {
+        _state.value = _state.value.copy(selectedQuote = quote)
+    }
+
+    fun resetSelectedQuote() {
+        _state.value = _state.value.copy(selectedQuote = null)
+    }
+
     private fun loadFavourites() {
         viewModelScope.launch(dispatcherContext) {
             quotesRepository.getFavourites().collect{
-                _state.value = FavouritesState.Loaded(it)
+                _state.value =  _state.value.copy(uiState = FavouritesState.Loaded(it))
             }
         }
     }
 
-    fun removeQuoteFromFavorites(quote: Quote) {
+    fun updateQuoteFavorites(quote: Quote, isFavorite: Boolean) {
         viewModelScope.launch(dispatcherContext) {
-            quotesRepository.updateFavorites(quote.copy(isFavorite = false))
+            quotesRepository.updateFavorites(quote.copy(isFavorite = isFavorite))
         }
     }
 }
 
+data class State(
+    val uiState: FavouritesState = FavouritesState.Loading,
+    val selectedQuote: Quote? = null
+)
 
 sealed interface FavouritesState {
     data object Loading : FavouritesState

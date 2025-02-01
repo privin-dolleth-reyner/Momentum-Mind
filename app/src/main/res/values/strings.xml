@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">GPT Quotes</string>
+    <string name="app_name">Momentum Mind</string>
+    <string name="home_title">Today\'s Quote</string>
+    <string name="favorites_title">Favorites</string>
+    <string name="favorites_empty_screen">Add some quotes to your favorites</string>
+    <string name="favorites_remove_quote">Remove Quote</string>
+    <string name="favorites_share_quote">Share Quote</string>
+    <string name="favorites_added_to_favorites">Added to Favorites</string>
+    <string name="favorites_removed_favorites">Removed from Favorites</string>
+    <string name="favorites_favorite_quote">Favorite Quote</string>
+    <string name="share_via">Share via</string>
 </resources>

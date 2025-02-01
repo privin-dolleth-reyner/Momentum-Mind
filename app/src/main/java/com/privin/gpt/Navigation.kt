@@ -18,7 +18,7 @@ fun NavigationGraph(
     showSnackbar: (String) -> Unit
 ) {
     NavHost(navController = navController, startDestination = Screen.Home.route, modifier = modifier) {
-        composable(Screen.Home.route) { HomeScreen(showSnackbar = showSnackbar) }
+        composable(Screen.Home.route) { HomeScreen(showSnackBar = showSnackbar) }
         composable(Screen.Favorites.route) { FavoritesScreen() }
     }
 }

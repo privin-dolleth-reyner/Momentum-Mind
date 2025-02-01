@@ -11,42 +11,59 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = D_VERY_DARK_PURPLE_GRAY,
-    secondary = D_LIGHT_GRAY_PURPLE,
-    tertiary = D_SOFT_PINK,
-    onPrimary = WHITE,
-    primaryContainer = D_MEDIUM_PURPLE,
-    background = D_VERY_DARK_PURPLE_GRAY,
-    surface = D_NEARLY_BLACK,
-    surfaceContainer = D_DARK_PURPLE_GRAY,
-    onSurface = WHITE_TEXT
+    primary = BLUE10,
+    onPrimary = BLUE90,
+    primaryContainer = BLUE40,
+    onPrimaryContainer = BLUE90,
+    inversePrimary = BLUE80,
+    secondary = LIGHT_BLUE_10,
+    onSecondary = LIGHT_BLUE_90,
+    secondaryContainer = LIGHT_BLUE_40,
+    onSecondaryContainer = LIGHT_BLUE_90,
+    tertiary = BROWN10,
+    onTertiary = BROWN90,
+    tertiaryContainer = BROWN40,
+    onTertiaryContainer = BROWN90,
+    error = RED40,
+    onError = RED90,
+    errorContainer = RED40,
+    background = WHITE_10,
+    onBackground = WHITE_90,
+    surface = WHITE_10,
+    surfaceContainer = WHITE_40,
+    onSurface = WHITE_90,
+    inverseSurface = WHITE_90,
+    inverseOnSurface = WHITE_10,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = SOFT_PURPLE,
-    secondary = DEEPER_PURPLE,
-    tertiary = MAUVE,
+    primary = BLUE40,
     onPrimary = WHITE,
-    primaryContainer = LIGHT_LAVENDER,
-    background = NEARLY_WHITE,
-    surface = VERY_LIGHT_PURPLE,
-    surfaceContainer = SOFT_LILAC,
-    onSurface = BLACK_TEXT
-
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primaryContainer = BLUE10,
+    onPrimaryContainer = WHITE,
+    inversePrimary = BLUE80,
+    secondary = LIGHT_BLUE_40,
+    onSecondary = WHITE,
+    secondaryContainer = LIGHT_BLUE_80,
+    onSecondaryContainer = WHITE,
+    tertiary = BROWN40,
+    onTertiary = WHITE,
+    tertiaryContainer = BROWN80,
+    onTertiaryContainer = WHITE,
+    error = RED40,
+    onError = WHITE,
+    errorContainer = RED80,
+    background = WHITE_90,
+    onBackground = BLACK_TEXT,
+    surface = WHITE_80,
+    surfaceContainer = WHITE_80,
+    onSurface = WHITE_10,
+    inverseOnSurface = WHITE_90,
+    inverseSurface = WHITE_10,
 )
 
 @Composable
-fun GPTTheme(
+fun MomentumMindTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
