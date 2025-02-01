@@ -228,6 +228,7 @@ fun Loading(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         CircularProgressIndicator()
+        Spacer(Modifier.height(8.dp))
         Text(
             text = "Loading...",
             modifier = modifier
