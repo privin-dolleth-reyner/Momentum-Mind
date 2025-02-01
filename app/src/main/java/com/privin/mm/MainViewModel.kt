@@ -1,4 +1,4 @@
-package com.privin.gpt
+package com.privin.mm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

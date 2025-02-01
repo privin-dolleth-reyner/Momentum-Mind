@@ -1,4 +1,4 @@
-package com.privin.gpt
+package com.privin.mm
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite

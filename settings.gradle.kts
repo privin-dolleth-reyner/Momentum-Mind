@@ -19,7 +19,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "GPT"
+rootProject.name = "Momentum Mind"
 include(":app")
 include(":network")
 include(":core")

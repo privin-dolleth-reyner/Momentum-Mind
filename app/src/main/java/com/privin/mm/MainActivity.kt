@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.privin.gpt
+package com.privin.mm
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -69,7 +69,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.privin.data.models.Quote
-import com.privin.gpt.ui.theme.MomentumMindTheme
+import com.privin.mm.ui.theme.MomentumMindTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -321,7 +321,7 @@ private fun ShareAndFavorite(
     val context = LocalContext.current
     val isFavorite = remember { mutableStateOf(quote.isFavorite) }
     val toastMessage =
-        if (isFavorite.value) stringResource(R.string.favorites_added_to_favorites) else stringResource(
+        if (isFavorite.value.not()) stringResource(R.string.favorites_added_to_favorites) else stringResource(
             R.string.favorites_removed_favorites
         )
     Row(

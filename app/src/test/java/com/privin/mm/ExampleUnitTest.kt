@@ -1,4 +1,4 @@
-package com.privin.gpt
+package com.privin.mm
 
 import org.junit.Test
 

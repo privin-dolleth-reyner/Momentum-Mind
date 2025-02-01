@@ -1,4 +1,4 @@
-package com.privin.gpt
+package com.privin.mm
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

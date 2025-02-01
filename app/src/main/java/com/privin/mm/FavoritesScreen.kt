@@ -1,4 +1,4 @@
-package com.privin.gpt
+package com.privin.mm
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

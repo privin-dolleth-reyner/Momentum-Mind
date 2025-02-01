@@ -1,4 +1,4 @@
-package com.privin.gpt.ui.theme
+package com.privin.mm.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
