@@ -17,4 +17,5 @@ local.properties
 /secrets.properties
 /signing.properties
 /app/gpt.jks
-
+/privin.jks
+/app/privin.jks
