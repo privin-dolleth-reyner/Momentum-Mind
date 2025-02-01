@@ -8,10 +8,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -23,6 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,18 +44,17 @@ fun FavoritesScreen(viewModel: FavouritesViewModel = hiltViewModel()) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Favorites",
+            text = stringResource(R.string.favorites_title),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.headlineLarge,
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()
                 .padding(16.dp)
         )
 
         when (val value = state.uiState) {
             is FavouritesState.Loading -> Loading()
-            is FavouritesState.Loaded -> MotivationalQuotesList(
+            is FavouritesState.Loaded -> FavoritesList(
                 quotes = value.quotes,
                 onSelect = { selectedQuote ->
                     viewModel.setSelectedQuote(selectedQuote)
@@ -66,18 +67,31 @@ fun FavoritesScreen(viewModel: FavouritesViewModel = hiltViewModel()) {
 
     }
 
-
     state.selectedQuote?.let { selectedQuote ->
-        Box(modifier = Modifier.fillMaxSize()){
-            FullscreenQuoteCard(
+        Box(modifier = Modifier.fillMaxSize()) {
+
+            LargeQuoteCard(
                 quote = selectedQuote,
                 onFavoriteClick = {
                     viewModel.updateQuoteFavorites(selectedQuote, it)
-                },
-                showCloseButton = true,
-                onCloseClick = {
+                }
+            )
+
+
+            IconButton(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .align(Alignment.TopEnd),
+                onClick = {
                     viewModel.resetSelectedQuote()
-                })
+                }) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Close",
+                    tint = Color.White
+                )
+            }
+
         }
     }
 }
@@ -90,14 +104,14 @@ fun EmptyScreen(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Add some quotes to your favorites",
+            text = stringResource(R.string.favorites_empty_screen),
             modifier = modifier
         )
     }
 }
 
 @Composable
-fun MotivationalQuotesList(
+fun FavoritesList(
     modifier: Modifier = Modifier,
     quotes: List<Quote>,
     updateQuoteFavourite: (Quote, Boolean) -> Unit,
@@ -107,26 +121,23 @@ fun MotivationalQuotesList(
     if (quotes.isEmpty()) {
         EmptyScreen()
     } else {
-
-
-            LazyColumn(
-                modifier = modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(quotes) { quote ->
-                    QuoteCard(
-                        quote = quote,
-                        onRemove = {
-                            updateQuoteFavourite(quote, false)
-                        },
-                        onClick = {
-                            onSelect(quote)
-                        }
-                    )
-                }
+        LazyColumn(
+            modifier = modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(quotes) { quote ->
+                QuoteCard(
+                    quote = quote,
+                    onRemove = {
+                        updateQuoteFavourite(quote, false)
+                    },
+                    onClick = {
+                        onSelect(quote)
+                    }
+                )
             }
-
+        }
     }
 }
 
@@ -166,7 +177,7 @@ private fun QuoteCard(
             IconButton(onClick = onRemove) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Remove quote",
+                    contentDescription = stringResource(R.string.favorites_remove_quote),
                     tint = MaterialTheme.colorScheme.error
                 )
             }
@@ -177,7 +188,7 @@ private fun QuoteCard(
 @Preview
 @Composable
 fun List() {
-    MotivationalQuotesList(
+    FavoritesList(
         quotes = listOf(
             Quote(
                 quote = "Where there is will there is a way",

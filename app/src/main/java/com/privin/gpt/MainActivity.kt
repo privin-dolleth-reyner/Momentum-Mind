@@ -22,13 +22,13 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -58,8 +58,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
@@ -71,7 +69,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.privin.data.models.Quote
-import com.privin.gpt.ui.theme.GPTTheme
+import com.privin.gpt.ui.theme.MomentumMindTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -92,13 +90,13 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun QuoteApp() {
-    GPTTheme {
+    MomentumMindTheme {
         val navController = rememberNavController()
-        val snackbarHostState = remember { SnackbarHostState() }
+        val snackBarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
 
         Scaffold(
-            snackbarHost = { SnackbarHost(snackbarHostState) },
+            snackbarHost = { SnackbarHost(snackBarHostState) },
             topBar = {
                 TopAppBar(
                     title = {
@@ -165,7 +163,7 @@ fun QuoteApp() {
         ) { innerPadding ->
             NavigationGraph(navController, Modifier.padding(innerPadding)) {
                 scope.launch {
-                    snackbarHostState.showSnackbar(
+                    snackBarHostState.showSnackbar(
                         message = it,
                         withDismissAction = true,
                         duration = SnackbarDuration.Long
@@ -180,23 +178,35 @@ fun QuoteApp() {
 fun HomeScreen(
     viewModel: MainViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
-    showSnackbar: (String) -> Unit = {}
+    showSnackBar: (String) -> Unit = {}
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     Column(
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when (val value = state) {
             is MainState.Loaded -> {
-                FullscreenQuoteCard(
-                    quote = value.quote,
-                    onFavoriteClick = { isFav ->
-                        viewModel.addQuoteToFavorites(value.quote.copy(isFavorite = isFav))
-                    }
-                )
+                Column {
+                    Text(
+                        text = stringResource(R.string.home_title),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.headlineLarge,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(16.dp)
+                    )
+
+                    LargeQuoteCard(
+                        quote = value.quote,
+                        onFavoriteClick = { isFav ->
+                            viewModel.addQuoteToFavorites(value.quote.copy(isFavorite = isFav))
+                        }
+                    )
+                }
+
             }
 
             is MainState.Loading -> {
@@ -204,7 +214,7 @@ fun HomeScreen(
             }
 
             is MainState.Error -> {
-                showSnackbar(value.message)
+                showSnackBar(value.message)
             }
         }
     }
@@ -217,6 +227,7 @@ fun Loading(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        CircularProgressIndicator()
         Text(
             text = "Loading...",
             modifier = modifier
@@ -226,30 +237,15 @@ fun Loading(modifier: Modifier = Modifier) {
 
 
 @Composable
-fun FullscreenQuoteCard(
+fun LargeQuoteCard(
     quote: Quote,
     modifier: Modifier = Modifier,
     onFavoriteClick: (isFavorite: Boolean) -> Unit = {},
-    onCloseClick: () -> Unit = {},
-    showCloseButton: Boolean = false
 ) {
-    val context = LocalContext.current
-    var isFavorite by remember { mutableStateOf(quote.isFavorite) }
+
 
     var quoteTextSize by remember { mutableStateOf(48.sp) }
     var authorTextSize by remember { mutableStateOf(24.sp) }
-
-    if (showCloseButton.not()) {
-        Text(
-            text = "Today's Quote",
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.headlineLarge,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(16.dp)
-        )
-    }
 
     Card(
         modifier = modifier
@@ -262,22 +258,9 @@ fun FullscreenQuoteCard(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp)
+                .padding(24.dp),
+            contentAlignment = Alignment.BottomCenter
         ) {
-            if (showCloseButton) {
-                IconButton(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd),
-                    onClick = {
-                        onCloseClick()
-                    }) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Close"
-                    )
-                }
-            }
 
             Text(
                 text = "❝",
@@ -303,15 +286,12 @@ fun FullscreenQuoteCard(
                     text = quote.quote,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
+                        .fillMaxWidth()
                         .padding(bottom = 32.dp),
                     initialFontSize = quoteTextSize,
                     onFontSizeChanged = { quoteTextSize = it },
-                    style = TextStyle(
-                        fontWeight = FontWeight.Medium,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        fontFamily = FontFamily.Serif
-                    )
+                    style = MaterialTheme.typography.displayLarge.copy(textAlign = TextAlign.Center)
                 )
 
                 AutoResizingText(
@@ -321,53 +301,62 @@ fun FullscreenQuoteCard(
                         .padding(top = 8.dp),
                     initialFontSize = authorTextSize,
                     onFontSizeChanged = { authorTextSize = it },
-                    style = TextStyle(
-                        fontStyle = FontStyle.Italic,
-                        color = Color.White.copy(alpha = 0.8f),
-                        textAlign = TextAlign.Center,
-                        fontFamily = FontFamily.Serif
-                    ),
+                    style = MaterialTheme.typography.headlineMedium.copy(textAlign = TextAlign.Center),
                     maxLines = 2
                 )
 
                 Spacer(Modifier.height(16.dp))
 
-                Row(
-                    verticalAlignment = Alignment.Bottom,
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                ) {
-                    IconButton(onClick = {
-                        val shareIntent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            putExtra(Intent.EXTRA_TEXT, "${quote.quote} \n - ${quote.author}")
-                            type = "text/plain"
-                        }
-                        context.startActivity(Intent.createChooser(shareIntent, "Share via"))
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.Share,
-                            contentDescription = "Share Quote",
-                        )
-                    }
-
-                    IconButton(onClick = {
-                        isFavorite = !isFavorite
-                        onFavoriteClick(isFavorite)
-                        Toast.makeText(
-                            context,
-                            if (isFavorite) "Added to Favorites" else "Removed from Favorites",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }) {
-                        Icon(
-                            imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = "Favorite Quote",
-                            tint = if (isFavorite) Color.Red else LocalContentColor.current
-                        )
-                    }
-                }
+                ShareAndFavorite(quote, onFavoriteClick)
             }
+        }
+    }
+}
+
+@Composable
+private fun ShareAndFavorite(
+    quote: Quote,
+    onFavoriteClick: (isFavorite: Boolean) -> Unit
+) {
+    val context = LocalContext.current
+    val isFavorite = remember { mutableStateOf(quote.isFavorite) }
+    val toastMessage =
+        if (isFavorite.value) stringResource(R.string.favorites_added_to_favorites) else stringResource(
+            R.string.favorites_removed_favorites
+        )
+    Row(
+        verticalAlignment = Alignment.Bottom,
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+    ) {
+        IconButton(onClick = {
+            val shareIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, "${quote.quote} \n - ${quote.author}")
+                type = "text/plain"
+            }
+            context.startActivity(Intent.createChooser(shareIntent, "Share via"))
+        }) {
+            Icon(
+                imageVector = Icons.Default.Share,
+                contentDescription = stringResource(R.string.favorites_share_quote),
+            )
+        }
+
+        IconButton(onClick = {
+            isFavorite.value = quote.isFavorite.not()
+            onFavoriteClick(isFavorite.value)
+            Toast.makeText(
+                context,
+                toastMessage,
+                Toast.LENGTH_SHORT
+            ).show()
+        }) {
+            Icon(
+                imageVector = if (isFavorite.value) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                contentDescription = stringResource(R.string.favorites_favorite_quote),
+                tint = if (isFavorite.value) Color.Red else LocalContentColor.current
+            )
         }
     }
 }
@@ -401,8 +390,8 @@ private fun AutoResizingText(
 @Preview(showBackground = true)
 @Composable
 fun QuoteScreenPreview() {
-    GPTTheme {
-        FullscreenQuoteCard(
+    MomentumMindTheme {
+        LargeQuoteCard(
             Quote(
                 quote = "Where there is will there is a way",
                 author = "George Herbert"
