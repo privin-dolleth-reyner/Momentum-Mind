@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.privin.network"
-    compileSdk = 34
+    compileSdk = 35
 
     buildFeatures {
         buildConfig = true

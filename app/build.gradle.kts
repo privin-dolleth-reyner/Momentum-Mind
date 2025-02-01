@@ -9,13 +9,13 @@ plugins {
 }
 
 android {
-    namespace = "com.privin.gpt"
+    namespace = "com.privin.mm"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.privin.gpt"
+        applicationId = "com.privin.mm"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 3
         versionName = "1.0.0"
 

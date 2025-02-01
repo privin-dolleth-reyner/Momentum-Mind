@@ -9,4 +9,5 @@
     <string name="favorites_removed_favorites">Removed from Favorites</string>
     <string name="favorites_favorite_quote">Favorite Quote</string>
     <string name="share_via">Share via</string>
+    <string name="loading">Loading…</string>
 </resources>

@@ -2,7 +2,7 @@ package com.privin.database.di
 
 import android.content.Context
 import androidx.room.Room
-import com.privin.database.GPTDatabase
+import com.privin.database.MomentumMindDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,11 +16,11 @@ internal object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): GPTDatabase {
+    fun provideDatabase(@ApplicationContext context: Context): MomentumMindDatabase {
         return Room.databaseBuilder(
             context,
-            GPTDatabase::class.java,
-            "gpt_database"
+            MomentumMindDatabase::class.java,
+            "momentum_mind_database"
         ).fallbackToDestructiveMigration().build()
     }
 }
