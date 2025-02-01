@@ -1,6 +1,7 @@
 package com.privin.gpt
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -22,20 +23,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.privin.data.models.Quote
 
 @Composable
-fun FavoritesScreen(viewModel: FavouritesViewModel = hiltViewModel()){
+fun FavoritesScreen(viewModel: FavouritesViewModel = hiltViewModel()) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -54,15 +51,35 @@ fun FavoritesScreen(viewModel: FavouritesViewModel = hiltViewModel()){
                 .padding(16.dp)
         )
 
-        when (val value = state){
+        when (val value = state.uiState) {
             is FavouritesState.Loading -> Loading()
-            is FavouritesState.Loaded -> MotivationalQuotesList(quotes = value.quotes){
-                viewModel.removeQuoteFromFavorites(it)
-            }
+            is FavouritesState.Loaded -> MotivationalQuotesList(
+                quotes = value.quotes,
+                onSelect = { selectedQuote ->
+                    viewModel.setSelectedQuote(selectedQuote)
+                },
+                updateQuoteFavourite = { quote, isFavorite ->
+                    viewModel.updateQuoteFavorites(quote, isFavorite)
+                }
+            )
         }
 
     }
 
+
+    state.selectedQuote?.let { selectedQuote ->
+        Box(modifier = Modifier.fillMaxSize()){
+            FullscreenQuoteCard(
+                quote = selectedQuote,
+                onFavoriteClick = {
+                    viewModel.updateQuoteFavorites(selectedQuote, it)
+                },
+                showCloseButton = true,
+                onCloseClick = {
+                    viewModel.resetSelectedQuote()
+                })
+        }
+    }
 }
 
 @Composable
@@ -83,37 +100,46 @@ fun EmptyScreen(modifier: Modifier = Modifier) {
 fun MotivationalQuotesList(
     modifier: Modifier = Modifier,
     quotes: List<Quote>,
-    onQuoteRemoved: (Quote) -> Unit = {}
+    updateQuoteFavourite: (Quote, Boolean) -> Unit,
+    onSelect: (Quote) -> Unit = {},
 ) {
 
-    if (quotes.isEmpty()){
+    if (quotes.isEmpty()) {
         EmptyScreen()
-    }else{
-        LazyColumn(
-            modifier = modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(quotes) { quote ->
-                QuoteCard(
-                    quote = quote,
-                    onRemove = {
-                        onQuoteRemoved(quote)
-                    }
-                )
+    } else {
+
+
+            LazyColumn(
+                modifier = modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(quotes) { quote ->
+                    QuoteCard(
+                        quote = quote,
+                        onRemove = {
+                            updateQuoteFavourite(quote, false)
+                        },
+                        onClick = {
+                            onSelect(quote)
+                        }
+                    )
+                }
             }
-        }
+
     }
 }
 
 @Composable
 private fun QuoteCard(
     quote: Quote,
-    onRemove: () -> Unit
+    onRemove: () -> Unit,
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier
@@ -150,6 +176,14 @@ private fun QuoteCard(
 
 @Preview
 @Composable
-fun List(){
-    MotivationalQuotesList(quotes = listOf(Quote(quote = "Where there is will there is a way", author = "George Herbert")))
+fun List() {
+    MotivationalQuotesList(
+        quotes = listOf(
+            Quote(
+                quote = "Where there is will there is a way",
+                author = "George Herbert"
+            )
+        ),
+        updateQuoteFavourite = { _, _ -> }
+    )
 }

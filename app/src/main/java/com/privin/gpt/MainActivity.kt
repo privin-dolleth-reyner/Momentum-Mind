@@ -11,6 +11,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +25,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Share
@@ -68,6 +71,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -85,6 +89,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
         setContent {
             QuoteApp()
         }
@@ -102,22 +107,52 @@ fun QuoteApp() {
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 TopAppBar(
-                    title = { Text(text = "GPT Quotes", color = MaterialTheme.colorScheme.onPrimaryContainer) }
-                    , colors = TopAppBarDefaults.largeTopAppBarColors().copy(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                    title = {
+                        Text(
+                            text = "GPT Quotes",
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    },
+                    colors = TopAppBarDefaults.largeTopAppBarColors()
+                        .copy(containerColor = MaterialTheme.colorScheme.primaryContainer)
                 )
             },
             bottomBar = {
-                BottomAppBar(containerColor = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
-                    NavigationBar(containerColor = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground)  {
+                BottomAppBar(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                ) {
+                    NavigationBar(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        contentColor = MaterialTheme.colorScheme.onBackground
+                    ) {
                         val navBackStackEntry by navController.currentBackStackEntryAsState()
                         val currentRoute = navBackStackEntry?.destination?.route
                         val screens = listOf(Screen.Home, Screen.Favorites)
                         screens.forEach { screen ->
                             NavigationBarItem(
-                                icon = { Icon(screen.icon, contentDescription = screen.label, modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp)) },
-                                label = { Text(screen.label, style = MaterialTheme.typography.labelMedium) },
+                                icon = {
+                                    Icon(
+                                        screen.icon,
+                                        contentDescription = screen.label,
+                                        modifier = Modifier.padding(
+                                            vertical = 4.dp,
+                                            horizontal = 16.dp
+                                        )
+                                    )
+                                },
+                                label = {
+                                    Text(
+                                        screen.label,
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                },
                                 selected = currentRoute == screen.route,
-                                colors = NavigationBarItemDefaults.colors().copy(selectedIconColor = MaterialTheme.colorScheme.onPrimary, unselectedIconColor = MaterialTheme.colorScheme.onSurface, selectedIndicatorColor = MaterialTheme.colorScheme.primaryContainer),
+                                colors = NavigationBarItemDefaults.colors().copy(
+                                    selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                                    selectedIndicatorColor = MaterialTheme.colorScheme.primaryContainer
+                                ),
                                 onClick = {
                                     navController.navigate(screen.route) {
                                         popUpTo(navController.graph.startDestinationId) {
@@ -162,9 +197,12 @@ fun HomeScreen(
     ) {
         when (val value = state) {
             is MainState.Loaded -> {
-                FullscreenQuoteCard(value.quote){ isFav ->
-                    viewModel.addQuoteToFavorites(value.quote.copy(isFavorite = isFav))
-                }
+                FullscreenQuoteCard(
+                    quote = value.quote,
+                    onFavoriteClick = { isFav ->
+                        viewModel.addQuoteToFavorites(value.quote.copy(isFavorite = isFav))
+                    }
+                )
             }
 
             is MainState.Loading -> {
@@ -197,7 +235,9 @@ fun Loading(modifier: Modifier = Modifier) {
 fun FullscreenQuoteCard(
     quote: Quote,
     modifier: Modifier = Modifier,
-    onFavoriteClick: (isFavorite: Boolean) -> Unit = {}
+    onFavoriteClick: (isFavorite: Boolean) -> Unit = {},
+    onCloseClick: () -> Unit = {},
+    showCloseButton: Boolean = false
 ) {
     val context = LocalContext.current
     var isFavorite by remember { mutableStateOf(quote.isFavorite) }
@@ -205,27 +245,46 @@ fun FullscreenQuoteCard(
     var quoteTextSize by remember { mutableStateOf(48.sp) }
     var authorTextSize by remember { mutableStateOf(24.sp) }
 
-    Text(
-        text = "Today's Quote",
-        textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.headlineLarge,
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(16.dp)
-    )
+    if (showCloseButton.not()) {
+        Text(
+            text = "Today's Quote",
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.headlineLarge,
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(16.dp)
+        )
+    }
 
     Card(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        )
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp)
         ) {
+            if (showCloseButton) {
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd),
+                    onClick = {
+                        onCloseClick()
+                    }) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close"
+                    )
+                }
+            }
+
             Text(
                 text = "❝",
                 style = TextStyle(
@@ -349,6 +408,11 @@ private fun AutoResizingText(
 @Composable
 fun QuoteScreenPreview() {
     GPTTheme {
-        FullscreenQuoteCard(Quote(quote = "Where there is will there is a way", author = "George Herbert"))
+        FullscreenQuoteCard(
+            Quote(
+                quote = "Where there is will there is a way",
+                author = "George Herbert"
+            )
+        )
     }
 }
