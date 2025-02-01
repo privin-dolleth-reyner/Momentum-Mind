@@ -8,6 +8,12 @@ plugins {
     alias(libs.plugins.dagger.hilt)
 }
 
+
+val secretKeyProperties by lazy {
+    val secretKeyPropertiesFile = rootProject.file("secrets.properties")
+    Properties().apply { secretKeyPropertiesFile.inputStream().use { secret -> load(secret) } }
+}
+
 android {
     namespace = "com.privin.mm"
     compileSdk = 35
@@ -16,7 +22,7 @@ android {
         applicationId = "com.privin.mm"
         minSdk = 24
         targetSdk = 35
-        versionCode = 3
+        versionCode = 1
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -24,17 +30,10 @@ android {
 
     signingConfigs {
         create("release") {
-            val properties = Properties()
-            val propertiesFile = rootProject.file("signing.properties")
-
-            if (propertiesFile.exists()) {
-                properties.load(propertiesFile.inputStream())
-                val storeFilePath: String = properties.getProperty("STORE_FILE")?.removeSurrounding("\"")?.trim() ?: ""
-                storeFile = file(storeFilePath)
-                storePassword = properties.getProperty("STORE_PASSWORD")?.removeSurrounding("\"")?.trim() ?: ""
-                keyAlias = properties.getProperty("KEY_ALIAS")?.removeSurrounding("\"")?.trim() ?: ""
-                keyPassword = properties.getProperty("KEY_PASSWORD")?.removeSurrounding("\"")?.trim() ?: ""
-            }
+            keyAlias = secretKeyProperties.getProperty("keyAlias")
+            keyPassword = secretKeyProperties.getProperty("keyPassword")
+            storeFile = file(secretKeyProperties.getProperty("storeFile"))
+            storePassword = secretKeyProperties.getProperty("storePassword")
         }
     }
 
