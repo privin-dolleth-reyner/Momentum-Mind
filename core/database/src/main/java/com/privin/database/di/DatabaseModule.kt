@@ -2,6 +2,8 @@ package com.privin.database.di
 
 import android.content.Context
 import androidx.room.Room
+import com.privin.database.MmLocalDatasource
+import com.privin.database.MmLocalDatasourceImpl
 import com.privin.database.MomentumMindDatabase
 import dagger.Module
 import dagger.Provides
@@ -23,4 +25,8 @@ internal object DatabaseModule {
             "momentum_mind_database"
         ).fallbackToDestructiveMigration().build()
     }
+
+    @Provides
+    fun provideMmLocalDatasource(database: MomentumMindDatabase): MmLocalDatasource =
+        MmLocalDatasourceImpl(database.dailyQuoteDao())
 }

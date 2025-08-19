@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class QuoteData (
+data class QuoteNetworkData (
     @Json(name = "q") val quote: String, // quotes
     @Json(name = "a") val author: String, // author
     @Json(name = "c") val charCount: String? = null, // char count

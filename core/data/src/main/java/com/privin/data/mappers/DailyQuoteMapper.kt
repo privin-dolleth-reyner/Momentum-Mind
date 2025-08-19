@@ -2,11 +2,10 @@ package com.privin.data.mappers
 
 import com.privin.data.models.Quote
 import com.privin.database.model.DailyQuoteEntity
-import com.privin.network.model.QuoteData
+import com.privin.network.model.QuoteNetworkData
 
 
-fun DailyQuoteEntity?.mapToQuote(): Quote {
-    if (this == null) return Quote()
+fun DailyQuoteEntity.mapToQuote(): Quote {
     return Quote(
         quote = quote,
         author = author,
@@ -14,7 +13,7 @@ fun DailyQuoteEntity?.mapToQuote(): Quote {
     )
 }
 
-fun QuoteData.mapToDailyQuoteEntity(): DailyQuoteEntity {
+fun QuoteNetworkData.mapToDailyQuoteEntity(): DailyQuoteEntity {
     return DailyQuoteEntity(
         quote = quote,
         author = author,

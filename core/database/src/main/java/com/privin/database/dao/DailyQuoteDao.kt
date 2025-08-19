@@ -14,7 +14,7 @@ interface DailyQuoteDao {
     suspend fun insertDailyQuote(dailyQuote: DailyQuoteEntity)
 
     @Query("SELECT * FROM daily_quotes WHERE date = :date")
-    fun getDailyQuoteByDate(date: String): Flow<DailyQuoteEntity>
+    fun getDailyQuoteByDate(date: String): Flow<DailyQuoteEntity?>
 
     @Query("SELECT * FROM daily_quotes ORDER BY date DESC LIMIT 1")
     fun getLastAvailable(): Flow<DailyQuoteEntity>
