@@ -2,11 +2,10 @@ package com.privin.mm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.privin.data.NoInternetException
+import com.privin.data.Error
 import com.privin.data.QuotesRepository
 import com.privin.data.Result
 import com.privin.data.models.Quote
-import com.privin.network.HttpException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,18 +27,18 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             repository.getDailyQuote().collect { result ->
                 when(result){
-                    is Result.Error -> handleError(result.exception)
+                    is Result.Failure -> handleError(result.error)
                     is Result.Success<Quote> -> _state.value = MainState.Loaded(result.data)
                 }
             }
         }
     }
 
-    private fun handleError(exception: Exception) {
-        when(exception){
-            is HttpException -> _state.value = MainState.Error(exception.msg)
-            is NoInternetException -> _state.value = MainState.Error("No internet connection")
-            else -> _state.value = MainState.Error(exception.message ?: "Something went wrong, please try again later")
+    private fun handleError(error: Error) {
+        when(error){
+            is Error.ErrorResponse -> _state.value = MainState.Error(error.error ?: "Something went wrong, please try again later")
+            is Error.NoInternet -> _state.value = MainState.Error("No internet connection")
+            is Error.Unexpected -> _state.value = MainState.Error(error.msg ?: "Something went wrong, please try again later")
         }
     }
 

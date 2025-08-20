@@ -6,7 +6,8 @@ import com.privin.data.models.Quote
 import com.privin.database.MmLocalDatasource
 import com.privin.database.util.getToday
 import com.privin.network.MmNetworkDatasource
-import com.privin.network.model.QuoteNetworkData
+import com.privin.network.NetworkError
+import com.privin.network.NetworkResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -32,30 +33,38 @@ class QuotesRepositoryImpl(
     override suspend fun getDailyQuote(): Flow<Result<Quote>> = withContext(ioDispatcher) {
         val today = getToday()
         mmLocalDatasource.getDailyQuoteByDate(today)
-            .combine(flow<QuoteNetworkData?> {
-                try {
+            .combine(
+                flow<Result<Quote>> {
                     emit(syncDailyQuote())
-                } catch (e: Exception) {
-                    emit(null)
                 }
-            }, { local, network ->
-                local?.mapToQuote() ?: network?.mapToQuote()
-            })
-            .flowOn(ioDispatcher)
-            .map {
-                if (it == null) {
-                    Result.Error(NoInternetException)
-                } else Result.Success(it)
+            ) { local, network ->
+                local?.let {
+                    return@combine Result.Success(it.mapToQuote())
+                }
+                network
             }
+            .flowOn(ioDispatcher)
     }
 
-    private suspend fun syncDailyQuote() = withContext(ioDispatcher) {
+    private suspend fun syncDailyQuote(): Result<Quote> = withContext(ioDispatcher) {
         try {
-            return@withContext mmNetworkDatasource.getDailyQuote(getToday()).also {
-                mmLocalDatasource.insertDailyQuote(it.mapToDailyQuoteEntity())
+            val response = mmNetworkDatasource.getDailyQuote(getToday()).also {
+                if (it is NetworkResult.Success) {
+                    mmLocalDatasource.insertDailyQuote(it.data.mapToDailyQuoteEntity())
+                }
+            }
+            if (response is NetworkResult.Success) {
+                Result.Success(response.data.mapToQuote())
+            } else {
+                val error = (response as NetworkResult.Error).apiError
+                when(error){
+                    is NetworkError.ErrorResponse -> Result.Failure(Error.ErrorResponse(error.code, error.error))
+                    is NetworkError.NoInternet -> Result.Failure(Error.NoInternet)
+                    is NetworkError.Unexpected -> Result.Failure(Error.Unexpected(error.msg))
+                }
             }
         } catch (e: Exception) {
-            throw e
+            Result.Failure(Error.Unexpected(e.message))
         }
     }
 
@@ -72,7 +81,11 @@ class QuotesRepositoryImpl(
 
 sealed class Result<out T> {
     data class Success<T>(val data: T) : Result<T>()
-    data class Error(val exception: Exception) : Result<Nothing>()
+    data class Failure(val error: Error) : Result<Nothing>()
 }
 
-data object NoInternetException : Exception()
+sealed class Error {
+    object NoInternet : Error()
+    data class Unexpected(val msg: String? = null) : Error()
+    data class ErrorResponse(val code: Int, val error: String? = null) : Error()
+}
