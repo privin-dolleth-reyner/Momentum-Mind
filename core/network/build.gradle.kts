@@ -1,14 +1,29 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compiler)
-    alias(libs.plugins.google.secrets)
-    id("kotlinx-serialization")
+    alias(libs.plugins.kotlin.serialization)
 }
+
+// Loads build-time secrets from secrets.properties (falling back to the checked-in
+// secrets.default.properties), replacing the unmaintained Google secrets-gradle-plugin
+// which is not compatible with AGP 9.
+val secretProperties: Properties by lazy {
+    Properties().apply {
+        rootProject.file("secrets.default.properties").takeIf { it.exists() }
+            ?.inputStream()?.use { load(it) }
+        rootProject.file("secrets.properties").takeIf { it.exists() }
+            ?.inputStream()?.use { load(it) }
+    }
+}
+
+fun secret(key: String): String =
+    secretProperties.getProperty(key, "").trim().trim('"')
 
 android {
     namespace = "com.privin.network"
-    compileSdk = 35
+    compileSdk = 37
 
     buildFeatures {
         buildConfig = true
@@ -19,6 +34,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        buildConfigField("String", "BASE_URL", "\"${secret("BASE_URL")}\"")
+        buildConfigField("String", "API_KEY", "\"${secret("API_KEY")}\"")
     }
 
     buildTypes {
@@ -34,16 +52,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
 }
-
-secrets {
-    defaultPropertiesFileName = "secrets.default.properties"
-    propertiesFileName = "secrets.properties"
-}
-
 
 dependencies {
     implementation(libs.dagger.hilt)

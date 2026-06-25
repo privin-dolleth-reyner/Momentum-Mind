@@ -12,13 +12,14 @@
 #   public *;
 #}
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Preserve line number information for readable release crash stack traces.
+-keepattributes SourceFile,LineNumberTable
+# Hide the original source file name in the (kept) line number info.
+-renamesourcefileattribute SourceFile
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Hilt/Dagger generate code that R8 handles via bundled rules; no manual keeps
+# are required for a standard setup. Add targeted keeps here only if a release
+# build surfaces a missing-binding or reflection error.
 
 -keep class androidx.compose.** { *; }
 -keep interface androidx.compose.** { *; }
