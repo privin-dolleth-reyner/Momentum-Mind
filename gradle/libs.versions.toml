@@ -23,6 +23,11 @@ kotlinxVersion = "0.6.1"
 hiltNavigation = "1.2.0"
 navigationCompose = "2.8.5"
 materialIcons = "1.7.7"
+mockk = "1.13.13"
+coroutinesTest = "1.9.0"
+turbine = "1.1.0"
+robolectric = "4.14.1"
+coreTesting = "2.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -56,6 +61,12 @@ material = { group = "com.google.android.material", name = "material", version.r
 loggingInterceptor = { group="com.squareup.okhttp3", name = "logging-interceptor", version.ref = "loggingHttpInterceptor"}
 kotlin-datetime = { group="org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxVersion"}
 material-icons = { group="androidx.compose.material", name = "material-icons-core", version.ref = "materialIcons"}
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+room-testing = { group = "androidx.room", name = "room-testing", version.ref = "roomVersion" }
+androidx-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "coreTesting" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
