@@ -76,6 +76,7 @@ dependencies {
     implementation(libs.room)
     ksp(libs.room.compiler)
     implementation(libs.dagger.hilt.navigation)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.material.icons)
 
     implementation(libs.androidx.core.ktx)

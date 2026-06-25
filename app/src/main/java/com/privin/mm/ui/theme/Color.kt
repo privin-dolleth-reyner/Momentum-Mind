@@ -35,3 +35,31 @@ val BROWN40 = Color(0xFF993335)
 val BROWN80 = Color(0xFFe6b3b3)
 val BROWN90 = Color(0xFFf2d9d9)
 
+// --- Gradient palette -------------------------------------------------------
+// Complementary indigo → blue → violet stops used by the animated backgrounds
+// and the quote card. Kept close to the existing blue brand identity.
+
+// Dark theme: deep, moody night sky.
+val GRADIENT_DARK_1 = Color(0xFF0A1230) // deep indigo
+val GRADIENT_DARK_2 = Color(0xFF13245C) // royal blue
+val GRADIENT_DARK_3 = Color(0xFF2A1A57) // violet
+
+// Light theme: soft, airy daylight.
+val GRADIENT_LIGHT_1 = Color(0xFFEAF0FF) // pale blue
+val GRADIENT_LIGHT_2 = Color(0xFFDCE6FF) // periwinkle
+val GRADIENT_LIGHT_3 = Color(0xFFE9E2FF) // soft lilac
+
+// Quote-card gradient (rich, saturated — sits above the screen background).
+val CARD_DARK_1 = Color(0xFF1B2C66)
+val CARD_DARK_2 = Color(0xFF2E1F6B)
+val CARD_LIGHT_1 = Color(0xFF1a66ff)
+val CARD_LIGHT_2 = Color(0xFF3D5AFE)
+
+// Heart accent used by the favourite animation.
+val HEART_RED = Color(0xFFFF4D6D)
+
+// Favourites list cards — opaque, high-contrast surfaces that sit clearly above
+// the gradient background in both themes.
+val FAV_CARD_DARK = Color(0xFF1E2A4A) // deep indigo, fits the theme
+val FAV_CARD_LIGHT = Color(0xFFFFFFFF) // crisp white
+
