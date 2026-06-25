@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 
 package com.privin.mm
 
@@ -14,28 +14,38 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -49,22 +59,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.privin.data.models.Quote
 import com.privin.mm.ui.theme.BLUE80
 import com.privin.mm.ui.theme.FAV_CARD_DARK
 import com.privin.mm.ui.theme.FAV_CARD_LIGHT
+import com.privin.mm.ui.theme.quoteCardBrush
 import com.privin.mm.ui.util.QuoteImageShareHost
+import com.privin.mm.ui.util.shareQuoteText
 
 @Composable
 fun FavoritesScreen(
@@ -110,7 +127,7 @@ fun FavoritesScreen(
         }
     }
 
-    // Animated full-screen detail. Keep the last quote so the exit can animate.
+    // Animated translucent popup. Keep the last quote so the exit can animate.
     val selected = state.selectedQuote
     var lastSelected by remember { mutableStateOf<Quote?>(null) }
     if (selected != null) lastSelected = selected
@@ -121,29 +138,150 @@ fun FavoritesScreen(
         exit = fadeOut(tween(180)) + scaleOut(targetScale = 0.9f, animationSpec = tween(220)),
     ) {
         lastSelected?.let { detailQuote ->
-            Box(modifier = Modifier.fillMaxSize()) {
-                LargeQuoteCard(
-                    quote = detailQuote,
-                    onFavoriteClick = { viewModel.updateQuoteFavorites(detailQuote, it) },
-                    onShareImage = { shareRequest = detailQuote },
-                )
-                IconButton(
-                    modifier = Modifier
-                        .padding(24.dp)
-                        .align(Alignment.TopEnd),
-                    onClick = { viewModel.resetSelectedQuote() },
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(R.string.favorites_close_detail),
-                        tint = Color.White,
-                    )
-                }
-            }
+            FavoriteQuotePopup(
+                quote = detailQuote,
+                onShareImage = { shareRequest = detailQuote },
+                onClose = { viewModel.resetSelectedQuote() },
+            )
         }
     }
 
     QuoteImageShareHost(request = shareRequest, onComplete = { shareRequest = null })
+}
+
+/**
+ * Translucent popup showing a favourite quote over a dimmed scrim. The close
+ * control sits in its own circle, centred above the card. Tapping the scrim
+ * (outside the card) also dismisses.
+ */
+@Composable
+private fun FavoriteQuotePopup(
+    quote: Quote,
+    onShareImage: () -> Unit,
+    onClose: () -> Unit,
+) {
+    val context = LocalContext.current
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.62f))
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+            ) { onClose() },
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.88f)
+                .wrapContentHeight()
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                ) { /* swallow taps inside the popup so they don't dismiss */ },
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // Close control — centred above the card and separate from it.
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.14f))
+                    .clickable(onClick = onClose),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = stringResource(R.string.favorites_close_detail),
+                    tint = Color.White,
+                )
+            }
+
+            Spacer(Modifier.height(20.dp))
+
+            // Quote card.
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        brush = quoteCardBrush(),
+                        shape = MaterialTheme.shapes.extraLarge,
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = Color.White.copy(alpha = 0.12f),
+                        shape = MaterialTheme.shapes.extraLarge,
+                    ),
+            ) {
+                // Faint decorative quotation mark behind the text.
+                Text(
+                    text = "❝",
+                    style = TextStyle(
+                        fontSize = 128.sp,
+                        color = Color.White,
+                        fontFamily = FontFamily.Serif,
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(start = 12.dp)
+                        .alpha(0.10f),
+                )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 28.dp, vertical = 36.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = quote.quote,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                    )
+
+                    // Accent divider between quote and author.
+                    Box(
+                        modifier = Modifier
+                            .padding(vertical = 22.dp)
+                            .width(44.dp)
+                            .height(2.dp)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.55f)),
+                    )
+
+                    Text(
+                        text = quote.author,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontStyle = FontStyle.Italic,
+                        color = Color.White.copy(alpha = 0.92f),
+                        textAlign = TextAlign.Center,
+                    )
+
+                    Spacer(Modifier.height(28.dp))
+
+                    // Tap → share as image, long-press → share as plain text.
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.12f))
+                            .combinedClickable(
+                                onClick = onShareImage,
+                                onLongClick = { shareQuoteText(context, quote) },
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = stringResource(R.string.favorites_share_quote),
+                            tint = Color.White,
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable
