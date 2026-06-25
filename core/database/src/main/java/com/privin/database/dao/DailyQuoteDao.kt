@@ -13,11 +13,14 @@ interface DailyQuoteDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertDailyQuote(dailyQuote: DailyQuoteEntity)
 
+    // Nullable: the row may not exist yet (e.g. no daily quote cached for today). A non-null
+    // return type makes Room throw "expected a single row to return a NON-NULL object" on an
+    // empty result, which crashes the daily-quote lookup on a fresh install.
     @Query("SELECT * FROM daily_quotes WHERE date = :date")
-    fun getDailyQuoteByDate(date: String): Flow<DailyQuoteEntity>
+    fun getDailyQuoteByDate(date: String): Flow<DailyQuoteEntity?>
 
     @Query("SELECT * FROM daily_quotes ORDER BY date DESC LIMIT 1")
-    fun getLastAvailable(): Flow<DailyQuoteEntity>
+    fun getLastAvailable(): Flow<DailyQuoteEntity?>
 
     @Query("SELECT EXISTS(SELECT 1 FROM daily_quotes WHERE date = :date)")
     suspend fun isDailyQuoteAvailable(date: String): Boolean

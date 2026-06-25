@@ -43,7 +43,7 @@ class DailyQuoteDaoTest {
 
         dao.insertDailyQuote(entity)
 
-        val loaded = dao.getDailyQuoteByDate("25-6-2026").first()
+        val loaded = requireNotNull(dao.getDailyQuoteByDate("25-6-2026").first())
         assertEquals("Today", loaded.quote)
         assertEquals("Me", loaded.author)
     }
@@ -65,7 +65,7 @@ class DailyQuoteDaoTest {
         dao.insertDailyQuote(DailyQuoteEntity(date = "2-1-2026", quote = "second", author = "b"))
 
         // Note: ordering is lexicographic on the date string.
-        val last = dao.getLastAvailable().first()
+        val last = requireNotNull(dao.getLastAvailable().first())
         assertEquals("second", last.quote)
     }
 
@@ -80,7 +80,7 @@ class DailyQuoteDaoTest {
         assertTrue(dao.getFavourites().first().isEmpty())
 
         // Favourite it.
-        val stored = dao.getDailyQuoteByDate(pastDate).first()
+        val stored = requireNotNull(dao.getDailyQuoteByDate(pastDate).first())
         dao.updateDailyQuote(stored.copy(isFavourite = true))
 
         val favourites = dao.getFavourites().first()
@@ -92,6 +92,6 @@ class DailyQuoteDaoTest {
         assertTrue(dao.getFavourites().first().isEmpty())
 
         // The row still exists, just no longer favourited.
-        assertFalse(dao.getDailyQuoteByDate(pastDate).first().isFavourite)
+        assertFalse(requireNotNull(dao.getDailyQuoteByDate(pastDate).first()).isFavourite)
     }
 }

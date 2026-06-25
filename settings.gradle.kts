@@ -21,7 +21,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Momentum Mind"
 include(":app")
-include(":network")
 include(":core")
 include(":core:network")
 include(":core:data")
