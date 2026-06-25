@@ -3,10 +3,11 @@ package com.privin.mm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.privin.data.QuotesRepository
+import com.privin.data.di.IoDispatcher
 import com.privin.data.models.Quote
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -14,12 +15,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repository: QuotesRepository
+    private val repository: QuotesRepository,
+    @IoDispatcher private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _state = MutableStateFlow<MainState>(MainState.Loading)
     val state = _state.asStateFlow()
 
-    private val dispatcherContext = Dispatchers.IO + CoroutineExceptionHandler { _, throwable ->
+    private val dispatcherContext = dispatcher + CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
         _state.value = MainState.Error("Something went wrong, please try again later")
     }

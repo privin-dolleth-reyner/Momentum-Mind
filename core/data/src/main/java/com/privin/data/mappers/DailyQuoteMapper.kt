@@ -8,6 +8,7 @@ import com.privin.network.model.QuoteData
 fun DailyQuoteEntity?.mapToQuote(): Quote {
     if (this == null) return Quote()
     return Quote(
+        date = date,
         quote = quote,
         author = author,
         isFavorite = isFavourite
